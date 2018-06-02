@@ -1,7 +1,11 @@
 {
   "pages": [
-        "pages/regist/regist",
+
+    "pages/login/login",
+    "pages/regist/regist",
     "pages/index/index",
+    "pages/mine/mine",
+        "pages/choosebgm/choosebgm",
     "pages/logs/logs"
   ],
   "window": {
@@ -10,5 +14,5 @@
     "navigationBarTitleText": "WeChat",
     "navigationBarTextStyle": "black"
   },
-  "debug":true
+  "debug": true
 }

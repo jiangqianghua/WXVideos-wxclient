@@ -1,4 +1,4 @@
-// pages/regist/regist.js
+// pages/login/login.js
 const app = getApp();
 Page({
 
@@ -9,44 +9,47 @@ Page({
   
   },
 
-  doRegist:function(e){
-    var fromObject = e.detail.value;
+  doLogin:function(e){
+    var fromObject = e.detail.value; 
     var username = fromObject.username;
     var password = fromObject.password;
-    if(username.length == 0 ||
-    password.length == 0){
+    if (username.length == 0 ||
+      password.length == 0) {
       wx.showToast({
         title: '用户名或密码不能为空',
-        icon:'none',
-        duration:3000
+        icon: 'none',
+        duration: 3000
       })
-    }else{
-      var serverUrl = app.serverUrl ;
+    } else {
+      var serverUrl = app.serverUrl;
       wx.showLoading({
         title: '请等待...',
-      });
+      })
       wx.request({
-        url: serverUrl+'/regist',
-        method:'POST' ,
-        data:{
-          username:username,
-          password:password
+        url: serverUrl + '/login',
+        method: 'POST',
+        data: {
+          username: username,
+          password: password
         },
-        header:{
-          'content-type':'application/json'
+        header: {
+          'content-type': 'application/json'
         },
-        success:function(res){
+        success: function (res) {
           wx.hideLoading();
           console.log(res);
           var status = res.data.status;
-          if(status == 200){
+          if (status == 200) {
             wx.showToast({
-              title: '用户注册成功!!!',
-              icon: 'none',
+              title: '登录成功!',
+              icon: 'success',
               duration: 3000
             })
             app.userInfo = res.data.data;
-          } else{
+            wx.redirectTo({
+              url: '../mine/mine'
+            })
+          } else {
             wx.showToast({
               title: res.data.msg,
               icon: 'none',
@@ -58,12 +61,12 @@ Page({
     }
   },
 
-  goLoginPage:function(e){
+  goRegistPage: function (e) {
     wx.redirectTo({
-      url: '../login/login',
+      url: '../regist/regist',
     })
   },
-  
+
   /**
    * 生命周期函数--监听页面加载
    */

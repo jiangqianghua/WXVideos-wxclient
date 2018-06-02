@@ -3,7 +3,7 @@
     <image class="login-img" src='../resource/images/dsp.jpg'></image>
   </view>
   <view class="login-form">
-    <form bindsubmit='doRegist'>
+    <form bindsubmit='doLogin'>
       <view class="inputView">
         <image class="iconImage" src='../resource/images/username.png'></image>
 
@@ -17,11 +17,11 @@
         <input name="password" class="inputText" placeholder='请输入密码' />
       </view>
       <view>
-        <button class="loginBtn" type="primary" form-type='submit'>注册</button>
+        <button class="loginBtn" type="primary" form-type='submit'>登录</button>
       </view>
 
       <view>
-        <button class="goLoginBtn" type="warn" bindtap='goLoginPage'>返回登录</button>
+        <button class="goRegistBtn" type="warn" bindtap='goRegistPage'>点击注册</button>
       </view>
     </form>
   </view>
