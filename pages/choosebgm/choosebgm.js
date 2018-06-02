@@ -62,7 +62,9 @@ Page({
     var size = me.data.videoParams.size;
     var height = me.data.videoParams.height;
     var width = me.data.videoParams.width;
-
+    wx.showLoading({
+      title: '上传中...',
+    })
     // 上传
     var serverUrl = app.serverUrl;
     wx.uploadFile({
@@ -80,6 +82,24 @@ Page({
       header: {
         'content-type': 'application/json'
       },
+      success:function(res){
+        wx.hideLoading();
+        var data = JSON.parse(res.data);
+        if(data.status == 200){
+          wx.showToast({
+            title: '上传成功',
+            icon:'success'
+          });
+          wx.navigateBack({
+            delta:1
+          })
+        }else if(data.status == 500){
+          wx.showToast({
+            title: '上传失败',
+            icon:'none'
+          })
+        }
+      }
 
     })
 

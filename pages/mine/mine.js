@@ -29,11 +29,11 @@ Page({
       },
       success: function (res) {
         console.log(res);
-        wx.showToast({
-          title: '注销成功',
-          icon: 'success',
-          duration: 2000
-        });
+        // wx.showToast({
+        //   title: '注销成功',
+        //   icon: 'success',
+        //   duration: 2000
+        // });
         app.userInfo = null ;
         wx.redirectTo({
           url: '../login/login',
