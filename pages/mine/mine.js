@@ -1,4 +1,5 @@
 // pages/mine/mine.js
+var videoUtil = require('../../utils/videoUtils.js');
 const app = getApp();
 Page({
 
@@ -15,7 +16,7 @@ Page({
 
   logout:function(e){
     var serverUrl = app.serverUrl;
-    var user = app.userInfo;
+    var user = app.getGlobalUserInfo();
     if(user == undefined)
       return ;
     wx.request({
@@ -34,7 +35,8 @@ Page({
         //   icon: 'success',
         //   duration: 2000
         // });
-        app.userInfo = null ;
+        //app.userInfo = null ;
+        wx.removeStorageSync("userInfo");
         wx.redirectTo({
           url: '../login/login',
         })
@@ -51,11 +53,12 @@ Page({
         var tempFilePaths = res.tempFilePaths;
         console.log(tempFilePaths);
         var serverUrl = app.serverUrl;
+        var user = app.getGlobalUserInfo();
         wx.showLoading({
           title: '上传中...',
         })
         wx.uploadFile({
-          url: serverUrl + '/user/uploadFace?userId='+app.userInfo.id,
+          url: serverUrl + '/user/uploadFace?userId=' + user.id,
           filePath: tempFilePaths[0],
           name: 'file',
           header: {
@@ -95,7 +98,7 @@ Page({
 
     // 从服务器获取当前对象
     var me = this;
-    var user = app.userInfo ;
+    var user = app.getGlobalUserInfo() ;
     var serverUrl = app.serverUrl;
     wx.request({
       url: serverUrl + '/user/query?userId=' + user.id,
@@ -111,7 +114,7 @@ Page({
           if (userInfo != null &&  userInfo.faceImage != undefined && userInfo.faceImage.length > 0){
             faceUrl = serverUrl + userInfo.faceImage ;
           }
-          app.userInfo = userInfo ;
+          //app.userInfo = userInfo ;
           me.setData({
             faceUrl: faceUrl,
             fansCounts: userInfo.fansCounts,
@@ -125,39 +128,7 @@ Page({
   },
 
   uploadVideo:function(e){
-    wx.chooseVideo({
-      sourceType: ['album', 'camera'],
-      camera: 'back',
-      success: function (res) {
-        console.log(res);
-        var duration = res.duration;
-        var tempFilePath = res.tempFilePath ; 
-        var size = res.size ; 
-        var height = res.height ; 
-        var width = res.width ;
-
-        if(duration > 11){
-          wx.showToast({
-            title: '视频长度不能超过10秒',
-            icon: 'none',
-            duration: 2500
-          });
-        } else if(duration < 1){
-          wx.showToast({
-            title: '你拍摄的视频太短',
-            icon: 'none',
-            duration: 2500
-          });
-        }
-        else{
-          // 打开选择pgm的页面
-          wx.navigateTo({
-            url: '../choosebgm/choosebgm?duration=' + duration + "&tempFilePath=" + tempFilePath + "&size=" + size + "&height=" + height + "&width=" + width,
-          })
-
-        }
-      }
-    })
+    videoUtil.uploadVideo();
   },
 
   /**

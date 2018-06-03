@@ -45,7 +45,8 @@ Page({
               icon: 'success',
               duration: 3000
             })
-            app.userInfo = res.data.data;
+            //app.userInfo = res.data.data;
+            app.setGlobalUserInfo(res.data.data);
             wx.redirectTo({
               url: '../mine/mine'
             })
