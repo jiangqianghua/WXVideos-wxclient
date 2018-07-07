@@ -81,7 +81,9 @@ Page({
       filePath: tempFilePath,
       name: 'file',
       header: {
-        'content-type': 'application/json'
+        'content-type': 'application/json',
+        'userId': userInfo.id,
+        'userToken': userInfo.userToken
       },
       success:function(res){
         wx.hideLoading();
@@ -98,6 +100,17 @@ Page({
           wx.showToast({
             title: '上传失败',
             icon:'none'
+          })
+        } else if (data.status == 502) {
+          wx.showToast({
+            title: data.msg,
+            icon: "none",
+            duration: 3000,
+            success: function () {
+              wx.redirectTo({
+                url: '../login/login',
+              })
+            }
           })
         }
       }

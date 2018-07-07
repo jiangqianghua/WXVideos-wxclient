@@ -12,7 +12,7 @@ Page({
     video:'',
     videoInfo:{},
     publishUserInfo:{},
-    userLikeVideo:true
+    userLikeVideo:false
 
   },
   //http://192.168.1.102:8081/180601HCP7AXFXKP/video/tmp_ee98e9cc60d8d12d73b5ff1e90b1d622.mp4
@@ -46,6 +46,35 @@ Page({
     var me = this ; 
     me.videoCtx = wx.createVideoContext("myVideo");
 
+    var serverUrl = app.serverUrl ;
+    var user = app.getGlobalUserInfo();
+    var loginUserId = '';
+    if (user != null && user != undefined ||
+      user != ''){
+      loginUserId = user.id;
+    }
+
+    var videoInfo = me.data.videoInfo;
+    wx.request({
+      url: serverUrl + "/user/queryPublisher?loginUserId=" + user.id + "&videoId=" + videoInfo.id +"&publishUserId="+videoInfo.userId,
+      method:'POST',
+      header: {
+        'content-type': 'application/json'
+      },
+      success:function(res){
+        console.log(res);
+        var publisher = res.data.data.usersVo;
+        var userLikeVideo = res.data.data.userLikeVideo;
+        me.setData({
+          serverUrl:serverUrl,
+          publisher:videoInfo,
+          userLikeVideo: userLikeVideo
+        });
+
+
+      }
+    })
+
   },
 
   showIndex:function(){
@@ -55,7 +84,17 @@ Page({
   },
 
   upload:function(){
-    videoUtil.uploadVideo();
+    var user = app.getGlobalUserInfo();
+    var videoInfo  = JSON.stringify(this.data.videoInfo);
+    var realUrl = '../videoinfo/videoinfo#videoInfo@' + videoInfo;
+    if (user == null || user == undefined ||
+      user == '') {
+      wx.navigateTo({
+        url: '../login/login?redirectUrl='+realUrl,
+      })
+    } else {
+      videoUtil.uploadVideo();
+    }
   },
 
   videotap:function(e){
@@ -64,9 +103,71 @@ Page({
   },
 
   showMine:function(e){
-    wx.navigateTo({
-      url: '../mine/mine',
-    })
+    var user = app.getGlobalUserInfo();
+    if(user == null || user == undefined ||
+    user == ''){
+      wx.navigateTo({
+        url: '../login/login',
+      })
+    }else{
+      wx.navigateTo({
+        url: '../mine/mine',
+      })
+    }
+  },
+
+  likeVideoOrNot:function(e){
+    var me = this ; 
+    var videoInfo = me.data.videoInfo ;
+    var user = app.getGlobalUserInfo();
+    if (user == null || user == undefined ||
+      user == '') {
+      wx.navigateTo({
+        url: '../login/login',
+      })
+    } else {
+      var userLikeVideo = me.data.userLikeVideo ;
+      var url = '/video/userLike?userId=' + user.id + '&videoId=' + videoInfo.id +'&videoCreateId='+videoInfo.userId;
+      if(userLikeVideo){
+        url = '/video/userUnLike?userId=' + user.id + '&videoId=' + videoInfo.id + '&videoCreateId=' + videoInfo.userId;
+      }
+      var serverUrl = app.serverUrl ;
+      wx.request({
+        url: serverUrl+url,
+        method:'POST',
+        header: {
+          'content-type': 'application/json',
+          'userId': user.id,
+          'userToken': user.userToken
+        },
+        success:function(res){
+            me.setData({
+              userLikeVideo: !userLikeVideo
+            });
+        }
+
+      })
+    }
+
+  },
+
+  showPublisher:function(e){
+    var me = this; 
+    var user = app.getGlobalUserInfo();
+    var videoInfo = me.data.videoInfo ;
+    var realUrl = '../mine/mine#publisherId@' + videoInfo.userId;
+    if (user == null || user == undefined ||
+      user == '') {
+      wx.navigateTo({
+        url: '../login/login?redirectUrl=' + realUrl,
+      })
+    } else {
+      wx.navigateTo({
+        url: '../mine/mine?publisherId='+videoInfo.userId
+      })
+    }
+    
+    
   },
 
   /**
@@ -98,8 +199,9 @@ Page({
   onUnload: function () {
     //debugger;
     var me = this;
-    //me.videoCtx.stop();
+    me.videoCtx.stop();
   },
+  
 
   /**
    * 页面相关事件处理函数--监听用户下拉动作

@@ -10,6 +10,7 @@ Page({
   },
 
   doLogin:function(e){
+    var me = this ;
     var fromObject = e.detail.value; 
     var username = fromObject.username;
     var password = fromObject.password;
@@ -47,9 +48,16 @@ Page({
             })
             //app.userInfo = res.data.data;
             app.setGlobalUserInfo(res.data.data);
-            wx.redirectTo({
-              url: '../mine/mine'
-            })
+            var redirectUrl = me.redirectUrl ;
+            if (redirectUrl != null && redirectUrl != undefined && redirectUrl != ''){
+              wx.redirectTo({
+                url: redirectUrl
+              })
+            }else{
+              wx.redirectTo({
+                url: '../mine/mine'
+              })
+            }
           } else {
             wx.showToast({
               title: res.data.msg,
@@ -72,7 +80,12 @@ Page({
    * 生命周期函数--监听页面加载
    */
   onLoad: function (options) {
-  
+    var redirectUrl = options.redirectUrl ;
+    if(redirectUrl != null && redirectUrl != undefined && redirectUrl != ''){
+      redirectUrl = redirectUrl.replace(/#/g,"?");
+      redirectUrl = redirectUrl.replace(/@/g,"=");
+    }
+    this.redirectUrl = redirectUrl ;
   },
 
   /**
