@@ -201,6 +201,49 @@ Page({
     var me = this;
     me.videoCtx.stop();
   },
+
+
+  shareMe:function(){
+    var me = this;
+    var publishUserId = me.data.videoInfo.userId;
+    var videoId = me.data.videoInfo.id;
+    wx.showActionSheet({
+      itemList: ['下载到本地','举报用户','分享到朋友圈'],
+      success:function(res){
+        res.tapIndex;
+        if(res.tapIndex == 0){
+          // 下载
+          wx.showLoading({
+            title: '下载中...'
+          })
+          wx.downloadFile({
+            url:app.serverUrl+me.data.videoInfo.videoPath,
+            success:function(res){
+              if(res.statusCode === 200){
+                console.log(res.tempFilePath);
+                // 保存到相册
+                wx.saveVideoToPhotosAlbum({
+                  filePath: res.tempFilePath,
+                  success:function(res){    
+                    wx.hideLoading();
+                    console.log(res);
+                  }
+                })
+              }
+            }
+          })
+        }else if(res.tapIndex == 1){
+          // 举报用户
+          wx.navigateTo({
+            url: '../report/report?publishUserId=' + publishUserId + '&videoId=' + videoId
+          })
+
+        }else if(res.tapIndex == 2){
+          // 分享到朋友圈
+        }
+      }
+    })
+  },
   
 
   /**
@@ -220,7 +263,15 @@ Page({
   /**
    * 用户点击右上角分享
    */
-  onShareAppMessage: function () {
-  
+  onShareAppMessage: function (res) {
+    var me = this ; 
+    var videoInfo = me.data.videoInfo;
+    if(res.from === 'button'){
+      console.log(res.target);
+    }
+    return {
+      title:'短视频分享',
+      path: 'pages/videoinfo/videoinfo?videoInfo' + JSON.stringify(videoInfo)
+    }
   }
 })

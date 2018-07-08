@@ -8,7 +8,8 @@
     "pages/mine/mine",
     "pages/choosebgm/choosebgm",
     "pages/logs/logs",
-    "pages/searchVideo/searchVideo"
+    "pages/searchVideo/searchVideo",
+    "pages/report/report"
   ],
   "window": {
     "backgroundTextStyle": "light",
