@@ -95,7 +95,7 @@ data-replyToUserId='{{replyToUserId}}'
               <!-- 留言： -->
               <block wx:if="{{item.toNickname != null}}">
                 回复
-                <label class='nickname-lbl'>@{{item.toNickname}}</label>
+                <label class='nickname-lbl'>@{{item.toNickname}}                    </label>
               </block>
               <block wx:else>
                 留言：

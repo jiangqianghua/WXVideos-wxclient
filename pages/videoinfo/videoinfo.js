@@ -12,7 +12,12 @@ Page({
     video:'',
     videoInfo:{},
     publishUserInfo:{},
-    userLikeVideo:false
+    userLikeVideo:false,
+    placeholder:"说点什么",
+
+    commentsPage:1,
+    commentsTotalPage:1,
+    commentsList:[]
 
   },
   //http://192.168.1.102:8081/180601HCP7AXFXKP/video/tmp_ee98e9cc60d8d12d73b5ff1e90b1d622.mp4
@@ -70,11 +75,9 @@ Page({
           publisher:videoInfo,
           userLikeVideo: userLikeVideo
         });
-
-
       }
     })
-
+    me.getCommentsList(1);
   },
 
   showIndex:function(){
@@ -234,10 +237,19 @@ Page({
           })
         }else if(res.tapIndex == 1){
           // 举报用户
-          wx.navigateTo({
-            url: '../report/report?publishUserId=' + publishUserId + '&videoId=' + videoId
-          })
-
+          var user = app.getGlobalUserInfo();
+          var videoInfo = JSON.stringify(this.data.videoInfo);
+          var realUrl = '../videoinfo/videoinfo#videoInfo@' + videoInfo;
+          if (user == null || user == undefined ||
+            user == '') {
+            wx.navigateTo({
+              url: '../login/login?redirectUrl=' + realUrl,
+            })
+          } else {
+            wx.navigateTo({
+              url: '../report/report?publishUserId=' + publishUserId + '&videoId=' + videoId
+            })
+          }
         }else if(res.tapIndex == 2){
           // 分享到朋友圈
         }
@@ -257,7 +269,14 @@ Page({
    * 页面上拉触底事件的处理函数
    */
   onReachBottom: function () {
-  
+    var me = this ; 
+    var currentPage = me.data.commentsPage ; 
+    var totalPage = me.data.commentsTotalPage;
+    if(currentPage === totalPage){
+      return ;
+    }
+    var page = currentPage + 1; 
+    me.getCommentsList(page);
   },
 
   /**
@@ -273,5 +292,79 @@ Page({
       title:'短视频分享',
       path: 'pages/videoinfo/videoinfo?videoInfo' + JSON.stringify(videoInfo)
     }
+  },
+
+  leaveComment:function(res){
+    this.setData({
+      commentFocus:true
+    });
+  },
+
+  saveComment:function(e){
+    var me = this ;
+    var content = e.detail.value;
+    var user = app.getGlobalUserInfo();
+    var videoInfo = JSON.stringify(this.data.videoInfo);
+    var realUrl = '../videoinfo/videoinfo#videoInfo@' + videoInfo;
+    if (user == null || user == undefined ||
+      user == '') {
+      wx.navigateTo({
+        url: '../login/login?redirectUrl=' + realUrl,
+      })
+    } else {
+      wx.showLoading({
+        title: '请稍后...',
+      })
+      wx.request({
+        url: app.serverUrl +'/video/saveComment',
+        method:'POST',
+        header: {
+          'content-type': 'application/json',
+          'userId': user.id,
+          'userToken': user.userToken
+        },
+        data:{
+          videoId: this.data.videoInfo.id,
+          fromUserId:user.id,
+          comment:content
+        },
+        success:function(res){
+          wx.hideLoading();
+          console.log(res);
+          me.setData({
+            contentValue:'',
+            commentsList:[]
+          });
+
+          me.getCommentsList(1);
+        }
+      })
+    }
+  },
+
+  // commentsPage: 1,
+  // commentsTotalPage: 1,
+  // commentsList: []
+
+  getCommentsList:function(page){
+    var me = this ; 
+    var videoId = me.data.videoInfo.id;
+  
+    wx.request({
+      url: app.serverUrl + '/video/getVideoComments?videoId='+videoId+'&page='+page+'&pageSize='+5,
+      method:'POST',
+      success:function(res){
+        console.log(res);
+        var commentslist = res.data.data.rows;
+        var newCommentsList = me.data.commentsList;
+        // if(page == 1)
+        //   newCommentsList = [];
+        me.setData({
+          commentsList:newCommentsList.concat(commentslist),
+          commentsPage: page,
+          commentsTotalPage: res.data.data.total
+        });
+      }
+    })
   }
 })
